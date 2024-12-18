@@ -1,5 +1,11 @@
 #include <platform/win32/system/window_win32.h>
+#include "../cmp418_coursework-GeoFyl/Include/imGUI/imgui.h"
+#include "../cmp418_coursework-GeoFyl/Include/imGUI/imgui_impl_win32.h"
+#include "../cmp418_coursework-GeoFyl/Include/imGUI/imgui_impl_dx11.h"
 
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+//extern LRESULT ImGui_ImplDX11_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
 	switch(umessage)
@@ -20,10 +26,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 
 		// All other messages pass to the message handler in the system class.
 	default:
-		{
-			return DefWindowProc(hwnd, umessage, wparam, lparam);
-		}
+		if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
+			return true;
+		return DefWindowProc(hwnd, umessage, wparam, lparam);
 	}
+
+
+
+	
+	/*if (ImGui_ImplDX11_WndProcHandler(hwnd, umessage, wparam, lparam))
+		return true;*/
 }
 
 namespace gef
@@ -45,7 +57,7 @@ hwnd_(NULL)
 	hinstance_ = hinstance;
 
 	// Give the application a name.
-	application_name_ = "Framework Application";
+	application_name_ = "CMP418 Animation Project";
 
 	// Setup the windows class with default settings.
 	WNDCLASSEX wc;
@@ -135,7 +147,6 @@ hwnd_(NULL)
 
 
 	HRESULT hres = SetWindowText(hwnd_, application_name_);
-
 
 	// Bring the window up on the screen and set it as main focus.
 	ShowWindow(hwnd_, SW_SHOW);

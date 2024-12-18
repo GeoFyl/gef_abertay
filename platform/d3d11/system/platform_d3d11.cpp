@@ -14,9 +14,10 @@
 #include <platform/d3d11/graphics/depth_buffer_d3d11.h>
 #include <cassert>
 
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 namespace gef
 {
-	PlatformD3D11::PlatformD3D11(HINSTANCE hinstance, UInt32 width, UInt32 height, bool fullscreen, bool vsync_enabled, HWND hwnd) :
+	PlatformD3D11::PlatformD3D11(HINSTANCE hinstance, UInt32 width, UInt32 height, bool fullscreen, bool vsync_enabled, HWND* hwnd) :
 		window_(NULL),
 		clock_last_frame_(0),
 		device_(NULL),
@@ -44,12 +45,13 @@ namespace gef
 			set_width(window_->width());
 			set_height(window_->height());
 			hwnd_ = window_->hwnd();
+			hwnd = &hwnd_;
 		}
 		else
 		{
 			set_width(width);
 			set_height(height);
-			hwnd_ = hwnd;
+			hwnd_ = *hwnd;
 		}
 		//Store long ptr so this platform object can be accessed in static callback
 		SetWindowLongPtr(hwnd_, GWLP_USERDATA, (LONG_PTR)this);
@@ -57,6 +59,8 @@ namespace gef
 		// initialise top level wnd the same as the rendering hwnd
 		// top level wnd can be overriden externally
 		top_level_hwnd_ = hwnd_;
+
+		
 
 		// Store the vsync setting.
 		vsync_enabled_ = vsync_enabled;
@@ -141,6 +145,7 @@ namespace gef
 			return DefWindowProc(hwnd, umessage, wparam, lparam);
 		}
 		}
+		
 	}
 
 	void PlatformD3D11::Release()
@@ -540,10 +545,13 @@ namespace gef
 	{
 	}
 
+	
 	LRESULT PlatformD3D11::WindowMessageCallback(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 	{
 		PlatformD3D11* that = (PlatformD3D11*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 		if(that == nullptr) return DefWindowProc(hwnd, umessage, wparam, lparam);
+		if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
+			return true;
 		that->HandleWindowMessage(hwnd, umessage, wparam, lparam);
 	}
 	 

@@ -37,6 +37,7 @@ void Application::Run()
 		running_ = platform_.Update();
 		if(running_)
 		{
+
 			// check to see if frame time is too large
 			// if it is we need use the target frame rate 
 			// as using a large frame time compound any frame rate drop
